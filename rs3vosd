@@ -1,0 +1,17 @@
+#!/bin/sh
+
+while true
+do
+	if [ -z "${HOUR_LATER+x}" ] || [ "$(date +%s%3N)" -gt "$HOUR_LATER" ]; then
+		CURR_MSG=$MSG
+		while [ "$CURR_MSG" = "$MSG" ]
+		do
+			REQUEST=$(wget -qO- 'https://fdcvos.herokuapp.com/api/tweets/findOne?filter={"order": "timestamp_ms DESC"}')
+			MSG=$(echo "$REQUEST" | grep -Po '(?<=the ).*(?= dist)')
+			HOUR_LATER=$(( $(echo "$REQUEST" | grep -Po '(?<=_ms":).*(?=,"id)')  + 3540000 ))
+			sleep 2
+		done 
+		notify-send -i "runescape" "Voice Of Seren" "$MSG"
+	fi
+	sleep 5
+done
